@@ -51,7 +51,7 @@ can_msg = st.empty()
 
 # read 'CAN' data from serial connection
 
-def decode_single_frame():
+def decode_single_frame(db, can_frame, frame_id):
     # # decode CAN frame
     if len(can_frame) > 5:
         if can_frame[1] == frame_id:
@@ -59,10 +59,8 @@ def decode_single_frame():
             message_data = [int(num, base=16) for num in can_frame[2:]]
             message = db.decode_message(message_id, message_data)
 
-            if selected_signal:
-                can_msg.write(f"{selected_signal}: {message[selected_signal]}")
-            else:
-                can_msg.write(message)
+            return message
+
             # print(message_data)
             # print("-"*50)
         # else:
@@ -79,6 +77,7 @@ def color_background(val):
 def visualise_all_frames(df, can_frame):
     if len(can_frame) == 10:
         can_frame = can_frame[1:] # strip out header
+        
         # figure out a non-dumb way to do this
         can_dict = {}
         for idx, col in enumerate(df.columns):
@@ -105,16 +104,21 @@ while read_can_data:
         can_frame = [my_str for my_str in decoded_bytes.split(",")]
         
         if SINGLE_FRAME:
-            decode_single_frame()
+            message = decode_single_frame(db, can_frame, frame_id)
+            if message is not None:
+                if selected_signal:
+                    can_msg.write(f"{selected_signal}: {message[selected_signal]}")
+                else:
+                    can_msg.write(message)
+        
         else:
             df = visualise_all_frames(df, can_frame)            
 
             # what 
             can_msg.write(df.reset_index(drop=True).\
                 sort_values("frame_id").\
-                    style.applymap(color_background,    subset=df.columns[1:]))
+                    style.applymap(color_background, subset=df.columns[1:]))
     
-
         time.sleep(0.5)
 
     except KeyboardInterrupt:
