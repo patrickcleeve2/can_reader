@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 
-
-import time
-from pprint import pprint
-
-import cantools
 import rospy
 import serial
 from can_msgs.msg import Frame
@@ -13,11 +8,6 @@ if __name__ == "__main__":
 
     rospy.init_node("can_reader")
     rospy.loginfo("hello can reader")
-
-    db = cantools.database.load_file(
-        "../opendbc/hyundai_i30_2014.dbc",
-        strict=False,
-    )
 
     ser = serial.Serial("/dev/ttyACM0")
     ser.flushInput()
@@ -34,12 +24,12 @@ if __name__ == "__main__":
             if len(bytes_list) == 10:
                 message_id = int(bytes_list[1], base=16)
                 message_data = [int(num, base=16) for num in bytes_list[2:]]
-                message = db.decode_message(message_id, message_data)
 
                 # publish ros can frame
                 frame = Frame()
+                frame.header.stamp = rospy.Time.now()
                 frame.id = message_id
-                frame.dlc = 8
+                frame.dlc = len(message_data)
                 frame.data = bytes(message_data)
 
                 can_pub.publish(frame)
