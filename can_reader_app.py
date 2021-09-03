@@ -10,50 +10,11 @@ import streamlit as st
 
 import pandas as pd
 
-st.header("CAN Reader App")
-
-# read dbc file
-dbc_filenames = glob.glob("../opendbc/hyundai*.dbc")
-db_file = st.selectbox("Select a DBC File ", dbc_filenames)
-db = cantools.database.load_file(
-    db_file,
-    strict=False,
-)
-
-df = pd.DataFrame(columns=["frame_id", "byte_0", "byte_1", "byte_2", "byte_3", 
-                        "byte_4", "byte_5", "byte_6", "byte_7"])
-
-# setup serial connection
-ser = serial.Serial("/dev/cu.usbmodem144301")
-ser.flushInput()
-
-SINGLE_FRAME = st.sidebar.select_slider("Data Filtering", [False, True])
-
-
-if SINGLE_FRAME:
-    # select data
-    frame_id = st.selectbox(
-        "Select a CAN Frame ID: ", [hex(msg.frame_id) for msg in db.messages]
-    )
-
-    selected_message = db.get_message_by_frame_id(int(frame_id, base=16))
-
-    selected_signal = st.selectbox(
-        "Select a signal: ", [None] + [signal.name for signal in selected_message.signals]
-    )
-
-read_can_data = st.button("Read CAN Data")
-st.subheader("Current CAN Frame")
-can_msg = st.empty()
-
-
-
 
 # read 'CAN' data from serial connection
-
 def decode_single_frame(db, can_frame, frame_id):
     # # decode CAN frame
-    if len(can_frame) > 5:
+    if len(can_frame) == 10:
         if can_frame[1] == frame_id:
             message_id = int(can_frame[1], base=16)
             message_data = [int(num, base=16) for num in can_frame[2:]]
@@ -61,17 +22,11 @@ def decode_single_frame(db, can_frame, frame_id):
 
             return message
 
-            # print(message_data)
-            # print("-"*50)
-        # else:
-        #     can_msg.write("No matching frames.")
-
 def color_background(val):
     color = 'limegreen' if val<75 else 'cornflowerblue' if val <=150 else "gold" if val<=200 else 'lightcoral'
     return f'background-color: {color}'
 # https://discuss.streamlit.io/t/change-background-color-based-on-value/2614/6
 # https://www.w3schools.com/cssref/css_colors.asp
-
 
 
 def visualise_all_frames(df, can_frame):
@@ -95,35 +50,77 @@ def visualise_all_frames(df, can_frame):
             df = df.append(pd.DataFrame.from_records([can_dict]))
     return df
 
-while read_can_data:
 
-    try:
-        # unpack CAN frame as string
-        ser_bytes = ser.readline()
-        decoded_bytes = ser_bytes[0 : len(ser_bytes) - 3].decode("utf-8")
-        can_frame = [my_str for my_str in decoded_bytes.split(",")]
+
+if __name__ == "__main__":
+
+    st.header("CAN Reader App")
+
+    # read dbc file
+    dbc_filenames = glob.glob("../opendbc/hyundai*.dbc")
+    db_file = st.selectbox("Select a DBC File ", dbc_filenames)
+    db = cantools.database.load_file(
+        db_file,
+        strict=False,
+    )
+
+    df = pd.DataFrame(columns=["frame_id", "byte_0", "byte_1", "byte_2", "byte_3", 
+                            "byte_4", "byte_5", "byte_6", "byte_7"])
+
+    # setup serial connection
+    ser = serial.Serial("/dev/ttyACM0")
+    ser.flushInput()
+
+    SINGLE_FRAME = st.sidebar.selectbox("Data Filtering", [False, True])
+
+
+    if SINGLE_FRAME:
+        # select data
+        frame_id = st.selectbox(
+            "Select a CAN Frame ID: ", [hex(msg.frame_id) for msg in db.messages]
+        )
+
+        selected_message = db.get_message_by_frame_id(int(frame_id, base=16))
+
+        selected_signal = st.selectbox(
+            "Select a signal: ", [None] + [signal.name for signal in selected_message.signals]
+        )
+
+    read_can_data = st.button("Read CAN Data")
+    st.subheader("Current CAN Frame")
+    can_msg = st.empty()
+
+
+    while read_can_data:
+
+        try:
+            # unpack CAN frame as string
+            ser_bytes = ser.readline()
+            decoded_bytes = ser_bytes[0 : len(ser_bytes) - 3].decode("utf-8")
+            can_frame = [my_str for my_str in decoded_bytes.split(",")]
+            
+            if SINGLE_FRAME:
+                message = decode_single_frame(db, can_frame, frame_id)
+                if message is not None:
+                    if selected_signal:
+                        can_msg.write(f"{selected_signal}: {message[selected_signal]}")
+                    else:
+                        can_msg.write(message)
+            
+            else:
+                df = visualise_all_frames(df, can_frame)            
+
+                # what 
+                can_msg.write(df.reset_index(drop=True).\
+                    sort_values("frame_id").\
+                        style.applymap(color_background, subset=df.columns[1:]))
         
-        if SINGLE_FRAME:
-            message = decode_single_frame(db, can_frame, frame_id)
-            if message is not None:
-                if selected_signal:
-                    can_msg.write(f"{selected_signal}: {message[selected_signal]}")
-                else:
-                    can_msg.write(message)
-        
-        else:
-            df = visualise_all_frames(df, can_frame)            
+            time.sleep(0.5)
 
-            # what 
-            can_msg.write(df.reset_index(drop=True).\
-                sort_values("frame_id").\
-                    style.applymap(color_background, subset=df.columns[1:]))
-    
-        time.sleep(0.5)
+        except KeyboardInterrupt:
+            # print("Keyboard Interrupt")
+            break
 
-    except KeyboardInterrupt:
-        # print("Keyboard Interrupt")
-        break
 
 
 # TODO:

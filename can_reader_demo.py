@@ -24,7 +24,7 @@ example_message = db.get_message_by_name("CLU2")
 
 
 
-ser = serial.Serial("/dev/cu.usbmodem144301")
+ser = serial.Serial("/dev/ttyACM0")
 ser.flushInput()
 
 while True:
