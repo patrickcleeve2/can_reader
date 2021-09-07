@@ -2,6 +2,6 @@
 
   <node name="can_reader" pkg="can_decoder"  type="can_reader.py"> </node>
 
-  <node name="can_decoder" pkg="can_decoder"  type="can_decoder.py" output="screen"> </node>
+  <node name="can_decoder" pkg="can_decoder"  type="can_publisher.py" output="screen"> </node>
 
 </launch>

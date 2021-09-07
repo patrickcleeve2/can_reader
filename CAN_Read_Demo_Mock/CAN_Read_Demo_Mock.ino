@@ -1,5 +1,6 @@
 
-String valid_can_ids[4] = {"0x690", "0x545", "0x80", "5e4"};
+String valid_can_ids[10] = {"0x420", "0x386", "0x2B0", "0x541", "0x251", "0x394", "0x371", "0x340", "0x4F1", "0x220"};
+//String valid_can_ids[4] = {"0x690", "0x545", "0x80", "5e4"};
 
 void setup() {
   // put your setup code here, to run once:
@@ -14,8 +15,7 @@ void loop() {
   // Create a fake CAN Frame for testing.
   Serial.print("can,");
 
-  // Create ID in hex (TODO: randomise ID too)
-
+  // Select a random ID in hex
   int idx = sizeof(valid_can_ids) / sizeof(String);
   String frame_id = valid_can_ids[random(idx)];
   
@@ -30,5 +30,5 @@ void loop() {
   }
   Serial.println("");
   
-  delay(200);
+  delay(50);
 }

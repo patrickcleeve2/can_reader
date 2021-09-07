@@ -1,0 +1,9 @@
+Header header
+float32 velocity
+float32 throttle_position
+float32 steering_angle
+float32 steering_rate
+float32 brake_pressed
+float32 yaw_rate
+bool left_blinker
+bool right_blinker
