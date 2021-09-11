@@ -1,0 +1,20 @@
+# hyundai config
+
+total_messages: 162
+control:
+  steer: SAS_Angle
+  steer_rate: SAS_Speed
+  throttle: Accel_Pedal_Pos
+  brake: None
+  brake_pressed: DriverBraking
+  yaw_rate: YAW_RATE
+wheel_speed:
+  FL: WHL_SPD_FL
+  FR: WHL_SPD_FR
+  RL: WHL_SPD_RL
+  RR: WHL_SPD_RR
+indicator:
+  left: CF_Gway_TurnSigLh
+  right: CF_Gway_TurnSigRh
+
+# TODO: add the rest

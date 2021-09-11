@@ -1,0 +1,19 @@
+# base config
+
+control:
+  steer: 
+  steer_rate: 
+  throttle: 
+  brake: 
+  brake_pressed: 
+  yaw_rate: 
+wheel_speed:
+  FL: 
+  FR: 
+  RL: 
+  RR: 
+indicator:
+  left: 
+  right: 
+
+# TODO: add the rest
