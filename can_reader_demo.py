@@ -1,46 +1,51 @@
 #!/usr/bin/env python3
 
-
-import time
 from pprint import pprint
 
 import cantools
 import serial
 
-db = cantools.database.load_file(
-    "../opendbc/hyundai_i30_2014.dbc",
-    strict=False,
-)
+if __name__ == "__main__":
 
+    # rospy.init_node("can_reader")
+    # rospy.loginfo("hello can reader")
 
-# pprint(db.messages)
-example_message = db.get_message_by_name("CLU2")
-# pprint(example_message.signals)
+    db = cantools.database.load_file(
+        "opendbc/hyundai_kia_generic.dbc",
+        strict=False,
+    )
 
-# for msg in db.messages:
-#     print(msg.name)
-#     example_message = db.get_message_by_name(msg.name)
-#     pprint(example_message.signals)
+    ser = serial.Serial("/dev/ttyACM0")
+    ser.flushInput()
 
+    # can_pub = rospy.Publisher("mini/can", Frame, queue_size=1)
 
+    while True:
+        try:
+            ser_bytes = ser.readline()
 
-ser = serial.Serial("/dev/ttyACM0")
-ser.flushInput()
+            decoded_bytes = ser_bytes.decode("utf-8", errors="ignore").split(",")
 
-while True:
-    try:
-        ser_bytes = ser.readline()
-        decoded_bytes = ser_bytes[0 : len(ser_bytes) - 3].decode("utf-8")
-        bytes_list = [my_str for my_str in decoded_bytes.split(",")]
+            if len(decoded_bytes) == 11:  # only parse full messages
 
-        # # decode can frame
-        if len(bytes_list) > 5:
-            message_id = int(bytes_list[1], base=16)
-            message_data = [int(num, base=16) for num in bytes_list[2:]]
-            message = db.decode_message(message_id, message_data)
-            pprint(message)
-            print("-"*50)
+                frame = str(decoded_bytes[0])
+                message_id = int(decoded_bytes[1], base=16)
+                message_data = [int(num, base=16) for num in decoded_bytes[2:-1]]
 
-    except KeyboardInterrupt:
-        print("Keyboard Interrupt")
-        break
+                message = db.decode_message(message_id, message_data)
+                pprint(message)
+
+                # # publish ros can frame
+                # frame = Frame()
+                # frame.header.stamp = rospy.Time.now()
+                # frame.id = message_id
+                # frame.dlc = len(message_data)
+                # frame.data = bytes(message_data)
+
+                # can_pub.publish(frame)
+
+                # rospy.loginfo(f"{message_id}: {message_data}")
+
+        except KeyboardInterrupt:
+            print("Keyboard Interrupt")
+            break
