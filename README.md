@@ -24,7 +24,10 @@ To enable for one time:
 
 
 ```
-$ ccolcon build
+$ rosdep install -i --from-path src --rosdistro foxy -y
+
+$ colcon build
+
 $ . install/setup.bash
 ```
  and run
