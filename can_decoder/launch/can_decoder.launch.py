@@ -13,7 +13,7 @@ def generate_launch_description():
             package='can_decoder',
             executable='can_publisher',
             name='can_publisher', 
-            output={'both': 'log'}
+            # output={'both': 'log'}
         ),
 
     ])
