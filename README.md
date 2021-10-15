@@ -1,6 +1,6 @@
 # can_reader
 
-An openpilot style CAN interface using opendbc, arduino, and ROS.
+An openpilot style CAN interface using opendbc, arduino, and ROS2.
 
 This package reads CAN frames sent over serial via an Arduino, and republishes the decoded frames in ROS.
 - It can also be used directly with a CAN-USB device and [socketcan](http://wiki.ros.org/socketcan_interface) to publish decoded CAN frames into ROS.
@@ -24,13 +24,13 @@ To enable for one time:
 
 
 ```
-$ catkin_make
-$ source devel/setup.bash
+$ ccolcon build
+$ . install/setup.bash
 ```
  and run
 
 ``` bash
-$ roslaunch can_decoder can_decoder.launch
+$ ros2 launch can_decoder can_decoder.launch.py
 ```
 
 Topics Published:
@@ -38,5 +38,4 @@ Topics Published:
 - can_decoder/CarState:  ```/mini/vehicle_state```
 
 ## Known Issues:
-- The mock arduino publisher sometimes causes bad frames to be sent, which will not be decoded, and sometimes crash. Just restart it.
 - Hasn't been used to send CAN data back to the car.
