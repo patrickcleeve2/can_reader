@@ -1,16 +1,13 @@
 import rclpy
 from rclpy.node import Node
 
-from std_msgs.msg import String
-from pprint import pprint
-import cantools
 import serial
 from can_msgs.msg import Frame
 
-class CAN_Reader(Node):
 
+class CAN_Reader(Node):
     def __init__(self, SERIAL_PORT: str = "/dev/ttyACM0", DBC_FILE: str = None):
-        super().__init__('can_reader')
+        super().__init__("can_reader")
 
         self.SERIAL_PORT = SERIAL_PORT
         self.can_publisher = self.create_publisher(Frame, "mini/can", 10)
@@ -20,7 +17,7 @@ class CAN_Reader(Node):
         ser = serial.Serial(self.SERIAL_PORT)
         ser.flushInput()
 
-        while True: # TODO: change to not shutdown or spin?
+        while True:  # TODO: change to not shutdown or spin?
             try:
                 ser_bytes = ser.readline()
 
@@ -30,20 +27,17 @@ class CAN_Reader(Node):
 
                     frame = str(decoded_bytes[0])
                     message_id = int(decoded_bytes[1], base=16)
-                    message_data = [int(num, base=16) for num in decoded_bytes[2:-1]] 
+                    message_data = [int(num, base=16) for num in decoded_bytes[2:-1]]
 
-                    # message = self.db.decode_message(message_id, message_data)
-                    # # pprint(message)
                     self.get_logger().info(f"{message_id}: {message_data}")
 
                     msg = Frame()
                     msg.header.stamp = self.get_clock().now().to_msg()
                     msg.id = message_id
                     msg.dlc = len(message_data)
-                    msg.data = message_data # can data is now in base 10?
+                    msg.data = message_data  # can data is now in base 10?
 
                     self.can_publisher.publish(msg)
-
 
             except KeyboardInterrupt:
                 print("Keyboard Interrupt")
@@ -60,5 +54,5 @@ def main(args=None):
     rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

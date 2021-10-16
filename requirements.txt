@@ -2,3 +2,4 @@ cantools
 pyserial
 PyQt5
 PyQtWebEngine
+pytest
