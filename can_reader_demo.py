@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 
+### Simple CAN Reader Demo
+# Read and Decode CAN Frames send over Arduino serial connection
+
 from pprint import pprint
 
 import cantools
 import serial
 
-if __name__ == "__main__":
 
-    # rospy.init_node("can_reader")
-    # rospy.loginfo("hello can reader")
+if __name__ == "__main__":
 
     db = cantools.database.load_file(
         "opendbc/hyundai_kia_generic.dbc",
@@ -17,8 +18,6 @@ if __name__ == "__main__":
 
     ser = serial.Serial("/dev/ttyACM0")
     ser.flushInput()
-
-    # can_pub = rospy.Publisher("mini/can", Frame, queue_size=1)
 
     while True:
         try:
@@ -34,17 +33,6 @@ if __name__ == "__main__":
 
                 message = db.decode_message(message_id, message_data)
                 pprint(message)
-
-                # # publish ros can frame
-                # frame = Frame()
-                # frame.header.stamp = rospy.Time.now()
-                # frame.id = message_id
-                # frame.dlc = len(message_data)
-                # frame.data = bytes(message_data)
-
-                # can_pub.publish(frame)
-
-                # rospy.loginfo(f"{message_id}: {message_data}")
 
         except KeyboardInterrupt:
             print("Keyboard Interrupt")
