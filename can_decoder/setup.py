@@ -24,7 +24,8 @@ setup(
     entry_points={
         'console_scripts': [ 
             'can_reader = can_decoder.can_reader:main',
-            'can_publisher = can_decoder.can_publisher:main'
+            'can_publisher = can_decoder.can_publisher:main',
+            'can_decoder_ui = can_decoder.can_decoder_ui:main'
         ],
     },
 )
