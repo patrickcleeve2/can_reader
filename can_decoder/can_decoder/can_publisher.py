@@ -81,7 +81,7 @@ class CAN_Decoder(Node):
         msg.velocity = v_ego
         msg.steer = float(self.can_data[self.config["control"]["steer"]])
         msg.steer_rate = float(self.can_data[self.config["control"]["steer_rate"]])
-        msg.brake_pressed = float(self.can_data[
+        msg.brake_pressed = bool(self.can_data[
             self.config["control"]["brake_pressed"]
         ]) # nb this is not brake position, just a flag
         

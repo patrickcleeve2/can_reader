@@ -4,7 +4,7 @@ float32 throttle
 float32 steer
 float32 steer_rate
 float32 brake 
-float32 brake_pressed
+bool brake_pressed
 float32 yaw_rate
 bool left_indicator
 bool right_indicator
