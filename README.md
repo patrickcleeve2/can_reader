@@ -36,6 +36,15 @@ $ . install/setup.bash
 $ ros2 launch can_decoder can_decoder.launch.py
 ```
 
+### Docker
+To run the demo in a Docker container you will need to expose the usb /dev/ttyACM0 device to the container.
+
+``` bash
+$    docker build --tag can_reader_demo .
+$    docker run -t -i --device=/dev/ttyACM0 can_reader_demo
+```
+
+
 Topics Published:
 - can_msgs/Frame: ```/mini/can``` 
 - can_decoder/CarState:  ```/mini/vehicle_state```

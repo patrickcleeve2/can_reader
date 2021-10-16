@@ -5,16 +5,16 @@
 
 from pprint import pprint
 
-import cantools
+# import cantools
 import serial
 
 
 if __name__ == "__main__":
 
-    db = cantools.database.load_file(
-        "opendbc/hyundai_kia_generic.dbc",
-        strict=False,
-    )
+    # db = cantools.database.load_file(
+    #     "opendbc/hyundai_kia_generic.dbc",
+    #     strict=False,
+    # )
 
     ser = serial.Serial("/dev/ttyACM0")
     ser.flushInput()
@@ -31,8 +31,9 @@ if __name__ == "__main__":
                 message_id = int(decoded_bytes[1], base=16)
                 message_data = [int(num, base=16) for num in decoded_bytes[2:-1]]
 
-                message = db.decode_message(message_id, message_data)
-                pprint(message)
+                print(message_id, message_data)
+                # message = db.decode_message(message_id, message_data)
+                # pprint(message)
 
         except KeyboardInterrupt:
             print("Keyboard Interrupt")
