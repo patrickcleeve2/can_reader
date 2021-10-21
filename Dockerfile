@@ -1,7 +1,33 @@
-FROM python:3.8-slim
+FROM ros:foxy
 
-COPY can_reader_demo.py /app/can_reader_demo.py
+SHELL ["/bin/bash", "-c"]
 
-RUN pip3 install pyserial
+# install dependencies
+RUN apt-get update && apt-get install -y \
+        ros-foxy-can-msgs \
+        git \
+        python3.8 \
+        python3-pip \
+        && rm -rf /var/lib/apt/lists/*
 
-CMD ["python3", "-u", "/app/can_reader_demo.py"]
+
+# copy files
+RUN mkdir -p /dev_ws/src
+WORKDIR /dev/src
+COPY . /dev_ws/src/can_reader
+WORKDIR /dev_ws
+
+# install python dependences
+RUN pip install -r /dev_ws/src/can_reader/requirements.txt
+RUN . /opt/ros/foxy/setup.bash && colcon build
+
+RUN . /dev_ws/install/setup.bash
+
+# TODO: automatically source 
+# TODO: find out why reader is not publishing?
+
+
+# default command
+CMD ["bash"]
+
+# from: https://tuw-cpsg.github.io/tutorials/docker-ros/
